@@ -1,0 +1,2 @@
+time="2023-11-07 16:20:39" level=info msg="Msg publish err: json: cannot unmarshal string into Go struct field MsgService.user_id of type uint"
+time="2023-11-07 16:21:04" level=info msg="Msg publish err: json: cannot unmarshal string into Go struct field MsgService.user_id of type uint"
