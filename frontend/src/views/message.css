@@ -1,0 +1,15 @@
+#msg { 
+    width: 100vh; 
+    height: 70vh; 
+    background-color: rgb(255, 255, 255); 
+
+}
+
+#input {
+    margin-top: 4vh;
+    
+}
+
+#standard-full-width {
+    width: 70vh
+}

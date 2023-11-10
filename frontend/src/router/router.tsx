@@ -17,7 +17,7 @@ import Message from "../views/message"
 const routes: RouteObject[] = [
   {
     path: "/",
-    element: <Navigate to="/login" />,
+    element: <Navigate to="/msg" />,
   },
   {
     path: "/test",
