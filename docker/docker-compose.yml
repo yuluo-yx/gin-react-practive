@@ -1,0 +1,51 @@
+version: '3.3'
+
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: ${DOCKER_PREFIX}-portainer
+    restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./portainer:/data
+    expose:
+      - ${PORTAINER_PORT}
+
+  nginx:
+    image: nginx:1.19.2
+    container_name: ${DOCKER_PREFIX}-nginx
+    restart: always
+    volumes:
+      - ./nginx/conf/conf.d:/etc/nginx/conf.d   # 里面的default.conf是nginx的配置
+      - ./nginx/html:/usr/share/nginx/html      # 前端的页面放在这里
+      - ./nginx/logs:/var/log/nginx             # 把log映射出来
+    ports:
+      - ${NGINX_PORT}
+    networks:
+      - message
+
+  backend-service:
+    image: ${DOCKER_PREFIX}-backend
+    env_file:
+      - .env
+    build:
+      dockerfile: apps/DockerFile
+      context: .
+      args:
+        APP_HOME: ${APP_HOME}
+    container_name: ${DOCKER_PREFIX}-backend
+    restart: on-failure
+    environment:
+      - SERVER_PORT=${BACKEND_PORT}
+    volumes:
+      - ./apps:${APP_HOME}
+      - /etc/localtime:/etc/localtime
+    expose:
+      - ${BACKEND_PORT}
+    ports:
+      - ${BACKEND_PORT}:${BACKEND_PORT}
+
+networks:
+    message:
+      external: true     
