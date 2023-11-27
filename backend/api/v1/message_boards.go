@@ -34,18 +34,18 @@ func MsgDelete(c *gin.Context) {
 	}
 }
 
-func MsgGet(c *gin.Context) {
-	var msgService services.MsgService
-
-	if err := c.ShouldBind(&msgService); err == nil {
-		res := msgService.Get(c.Request.Context())
-		c.JSON(http.StatusOK, res)
-	} else {
-		// 加入日志处理
-		utils.LogrusObj.Info("Msg get err: ", err)
-		c.JSON(http.StatusBadRequest, serializer.ErrorResponse(err))
-	}
-}
+//func MsgGet(c *gin.Context) {
+//	var msgService services.MsgService
+//
+//	if err := c.ShouldBind(&msgService); err == nil {
+//		res := msgService.Get(c.Request.Context())
+//		c.JSON(http.StatusOK, res)
+//	} else {
+//		// 加入日志处理
+//		utils.LogrusObj.Info("Msg get err: ", err)
+//		c.JSON(http.StatusBadRequest, serializer.ErrorResponse(err))
+//	}
+//}
 
 func ListMsg(c *gin.Context) {
 	var msgService services.MsgService

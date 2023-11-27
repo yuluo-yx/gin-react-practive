@@ -49,43 +49,43 @@ func (msgService MsgService) Publish(ctx context.Context) serializer.Response {
 	}
 }
 
-func (msgService MsgService) Get(ctx context.Context) serializer.Response {
-	// 初始化响应状态码变量值
-	code := e.Success
-	// 获取userDao对象
-	msgDao := dao.NewMsgDao(ctx)
-
-	msgList, err := msgDao.GetMsg()
-	if err != nil {
-		code = e.ErrorMsgGet
-		// 返回
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Data:   "留言查询失败！",
-		}
-	}
-
-	// 返回
-	return serializer.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-		Data:   serializer.BuildMsgs(msgList),
-	}
-}
+//func (msgService MsgService) Get(ctx context.Context) serializer.Response {
+//	// 初始化响应状态码变量值
+//	code := e.Success
+//	// 获取 msgDao 对象
+//	msgDao := dao.NewMsgDao(ctx)
+//
+//	msgList, err := msgDao.GetMsg()
+//	if err != nil {
+//		code = e.ErrorMsgGet
+//		// 返回
+//		return serializer.Response{
+//			Status: code,
+//			Msg:    e.GetMsg(code),
+//			Data:   "留言查询失败！",
+//		}
+//	}
+//
+//	// 返回
+//	return serializer.Response{
+//		Status: code,
+//		Msg:    e.GetMsg(code),
+//		Data:   serializer.BuildMsgs(msgList),
+//	}
+//}
 
 // ListMsg 分页查询
 func (msgService MsgService) ListMsg(ctx context.Context) serializer.Response {
 	// 初始化响应状态码变量值
 	code := e.Success
 
-	var msgs []*model.Message
+	var msgs []*dao.MsgResult
 
 	fmt.Printf("%v", msgService.BasePage)
 
 	// 分页信息
 	if msgService.BasePage.PageSize == 0 {
-		msgService.BasePage.PageSize = 15
+		msgService.BasePage.PageSize = 5
 	}
 
 	msgDao := dao.NewMsgDao(ctx)
@@ -96,7 +96,8 @@ func (msgService MsgService) ListMsg(ctx context.Context) serializer.Response {
 	wg.Add(1)
 	go func() {
 		msgDao := dao.NewMsgDaoByDB(msgDao.DB)
-		msgs, _ = msgDao.MsgListByCondition(msgService.BasePage)
+		userDao := dao.NewUserDao(ctx)
+		msgs, _ = msgDao.MsgListByCondition(msgService.BasePage, userDao)
 		wg.Done()
 	}()
 	wg.Wait()

@@ -36,9 +36,27 @@ func (dao *MsgDao) SaveMsg(msg *model.Message) error {
 	return dao.DB.Model(&model.Message{}).Create(&msg).Error
 }
 
-func (dao *MsgDao) MsgListByCondition(page model.BasePage) (msgs []*model.Message, err error) {
+type MsgResult struct {
+	model.Message
+	UserName string
+}
+
+func (dao *MsgDao) MsgListByCondition(page model.BasePage,
+	userDao *UserDao) (msgRes []*MsgResult, err error) {
+
+	var msgs []*model.Message
 	err = dao.DB.Offset((page.PageNum - 1) * (page.PageSize)).
 		Limit(page.PageSize).Find(&msgs).Error
+
+	for _, msg := range msgs {
+		var msgR MsgResult
+		user, _ := userDao.GetUserById(msg.UserId)
+		msgR.UserName = user.UserName
+		msgR.Text = msg.Text
+		msgR.UserId = msg.UserId
+
+		msgRes = append(msgRes, &msgR)
+	}
 
 	return
 }

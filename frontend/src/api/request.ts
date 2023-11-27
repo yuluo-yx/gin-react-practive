@@ -1,13 +1,12 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
-import { useNavigate } from "react-router-dom";
 
-const navigate = useNavigate();
-const baseURL = "/api"; //此处的/API与跨域有关,请跳转下方跨域部分
+const baseURL = "/api"; //此处的 /api 与跨域有关,请跳转下方跨域部分
 
 interface IResponeData {
   data: any;
-  errCode: number;
-  message: string;
+  status: number;
+  error: string;
+  msg: string;
 }
 
 //fetch定义请求的类型约束
@@ -18,7 +17,7 @@ export default function fetch(
   method: string = "POST",
   oheaders: object = {}
 ) {
-  return new Promise<IResponeData>((resolve, reject) => {
+  return new Promise<IResponeData>((resolve, _) => {
     //请求头部分
     let headers = Object.assign(
       {},

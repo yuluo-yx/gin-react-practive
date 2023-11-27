@@ -73,14 +73,30 @@ func (service UserService) Login(ctx context.Context) serializer.Response {
 	//检查用户是否存在
 	user, exist, err := userDao.ExistOrNotByUserName(service.UserName)
 	if err != nil || !exist {
-		code = e.ErrorExitUserNotFound
-		// 返回
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Data:   "用户不存在！请先注册",
+		//code = e.ErrorExitUserNotFound
+		//// 返回
+		//return serializer.Response{
+		//	Status: code,
+		//	Msg:    e.GetMsg(code),
+		//	Data:   "用户不存在！请先注册",
+		//}
+
+		// update logic, user auto register.
+		cuser := model.User{
+			UserName: service.UserName,
+		}
+		//密码加密
+		if err = user.SetPassword(service.Password); err != nil {
+			code = e.ErrorFailEncryption
+		}
+
+		// 创建用户
+		err = userDao.CreateUser(&cuser)
+		if err != nil {
+			code = e.Error
 		}
 	}
+
 	//检查密码
 	if user.CheckPassword(service.Password) == false {
 		code = e.ErrorNotCompare

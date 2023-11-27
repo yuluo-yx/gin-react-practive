@@ -25,7 +25,7 @@ func NewRouter() *gin.Engine {
 
 		// 留言操作路由
 		v1.POST("msg/publish", api.MsgPublish)
-		v1.GET("msg/get", api.MsgGet)
+		//v1.GET("msg/get", api.MsgGet)
 		v1.GET("msg/list", api.ListMsg)
 		v1.DELETE("msg/delete", api.MsgDelete)
 	}

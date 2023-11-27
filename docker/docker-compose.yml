@@ -1,6 +1,6 @@
-version: '3.3'
-
+version: "3.3"
 services:
+
   portainer:
     image: portainer/portainer-ce:latest
     container_name: ${DOCKER_PREFIX}-portainer
@@ -9,28 +9,45 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./portainer:/data
-    expose:
-      - ${PORTAINER_PORT}
+    ports:
+      - ${PORTAINER_PORT}:${PORTAINER_PORT}
 
   nginx:
     image: nginx:1.19.2
     container_name: ${DOCKER_PREFIX}-nginx
     restart: always
     volumes:
-      - ./nginx/conf/conf.d:/etc/nginx/conf.d   # 里面的default.conf是nginx的配置
-      - ./nginx/html:/usr/share/nginx/html      # 前端的页面放在这里
-      - ./nginx/logs:/var/log/nginx             # 把log映射出来
+      - ./nginx/conf/conf.d:/etc/nginx/conf.d # 里面的default.conf是nginx的配置
+      - ./nginx/html:/usr/share/nginx/html # 前端的页面放在这里
+      - ./nginx/logs:/var/log/nginx # 把log映射出来
     ports:
-      - ${NGINX_PORT}
+      - ${NGINX_PORT}:${NGINX_PORT}
     networks:
       - message
+    depends_on:
+      - backend-service
+
+    # mysql
+  mysql:
+    container_name: ${DOCKER_PREFIX}-mysql
+    restart: always
+    image: mysql:8.0.29
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: 082916
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql/init.d/init.sql:/docker-entrypoint-initdb.d/init.sql
+    command:
+      [--character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
 
   backend-service:
     image: ${DOCKER_PREFIX}-backend
     env_file:
       - .env
     build:
-      dockerfile: apps/DockerFile
+      dockerfile: ${BACKEND_HOME}/DockerFile
       context: .
       args:
         APP_HOME: ${APP_HOME}
@@ -39,13 +56,16 @@ services:
     environment:
       - SERVER_PORT=${BACKEND_PORT}
     volumes:
-      - ./apps:${APP_HOME}
+      - ${BACKEND_HOME}:${APP_HOME}
+      - ${BACKEND_HOME}/conf/config.ini:${APP_HOME}/conf/config.ini
       - /etc/localtime:/etc/localtime
     expose:
       - ${BACKEND_PORT}
     ports:
       - ${BACKEND_PORT}:${BACKEND_PORT}
+    depends_on:
+      - mysql
 
 networks:
-    message:
-      external: true     
+  message:
+    external: true
